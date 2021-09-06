@@ -8,7 +8,7 @@ export default class Comments extends React.Component {
         this.state = {
             comments: [],
             first: [],
-            limit: 10,
+            limit: 0,
         }
     }
     componentDidMount() {
@@ -16,7 +16,7 @@ export default class Comments extends React.Component {
             console.log(result);
             this.setState({
                 comments: result.data,
-                first: result.data.slice(0, this.state.limit)
+                first: result.data.slice(this.state.limit, 10)
             })
         }).catch((err) => {
             console.log(err)
@@ -25,7 +25,7 @@ export default class Comments extends React.Component {
     loadItems = () => {
         const value = this.state.limit + 10;
         const newArray = [...this.state.comments];
-        const first = newArray.slice(0,value);
+        const first = newArray.splice(value, 10);
         console.log(first)
         this.setState({
             first: first,

@@ -7,22 +7,30 @@ export default class Posts extends React.Component{
         super(props)
         this.state={
             data:[],
-            limit:10,
+            first:[],
+            initial:0
         }
     }
     componentDidMount(){
       axios.get('https://jsonplaceholder.typicode.com/posts').then((result)=>{
           console.log(result);
           this.setState({
-              data:result.data
+              data:result.data,
+              first:result.data.slice(0,10)
           })
       }).catch((err)=>{
         console.log(err)
       })
     }
     loadItems=()=>{
+        console.log(this.state.initial)
+        const value = this.state.initial +10 
+        const newArray = [...this.state.data];
+        const first = newArray.splice(value,10);
+        console.log(first)
         this.setState({
-            limit : this.state.limit + 10
+            first :first,
+            initial : value
         })
     }
     render(){
@@ -38,8 +46,8 @@ export default class Posts extends React.Component{
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.data === undefined? "":
-                        this.state.data.slice(0,this.state.limit).map((item,i)=>(
+                        {this.state.first === undefined? "":
+                        this.state.first.map((item,i)=>(
                             <tr key={i}>
                             <td>{item.id}</td>
                             <td>{item.title}</td>
