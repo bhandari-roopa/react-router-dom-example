@@ -7,8 +7,10 @@ export default class Comments extends React.Component {
         super(props)
         this.state = {
             comments: [],
-            first: [],
-            limit: 0,
+             first: [],
+            initial: 0,
+            currentPage: 1,
+            totalPages: 0
         }
     }
     componentDidMount() {
@@ -16,28 +18,67 @@ export default class Comments extends React.Component {
             console.log(result);
             this.setState({
                 comments: result.data,
-                first: result.data.slice(this.state.limit, 10)
+                 totalPages: Math.ceil(result.data.length / 15),
+                first: result.data.slice(0, 15)
+               
             })
         }).catch((err) => {
             console.log(err)
         })
     }
-    loadItems = () => {
-        const value = this.state.limit + 10;
+   previousItems = () => {
+        console.log(this.state.initial)
+        const value = this.state.initial - 15
+        const pageNumber = this.state.currentPage - 1
         const newArray = [...this.state.comments];
-        const first = newArray.splice(value, 10);
+        const first = newArray.splice(value, 15);
         console.log(first)
         this.setState({
             first: first,
-            limit: value,
-        })     
+            initial: value,
+            currentPage: pageNumber,
+        })
     }
+
+    nextItems = () => {
+        console.log(this.state.initial)
+        const value = this.state.initial + 15
+        const pageNumber = this.state.currentPage + 1
+        const newArray = [...this.state.comments];
+        const first = newArray.splice(value, 15);
+        console.log(first)
+        this.setState({
+            first: first,
+            initial: value,
+            currentPage: pageNumber,
+        })
+    }
+
+    loadItems = (index) => {
+        const newArray = [...this.state.comments];
+        const value = 15 *index - 15;
+        console.log(value)
+        const array = newArray.splice(value, 15);
+       
+         this.setState({
+            currentPage: index,
+             initial: value,
+             first: array
+        }) 
+        // 1->0
+        // 2->15
+        // 3->30
+        // i-> 15 *i -15
+        
+    }
+
     render() {
+      
         return (
             <div className="container">
                 <h4>Comments</h4>
+                 <p class="float-right" style={{ float :"right"}}>Page: {this.state.currentPage}/{this.state.totalPages}</p>
                 <table className="table table-bordered">
-                    <caption> <button className="btn btn-primary" onClick={this.loadItems}>Next</button></caption>
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -58,7 +99,38 @@ export default class Comments extends React.Component {
 
                     </tr>
                 </table>
+        <div>
+ <ul class="pagination justify-content-end">
+{this.state.currentPage === 1 ?
+    <li  class="page-item disabled">
+    <button class="page-link" href="#" onClick={this.previousItems}>Previous</button>
+    </li>
+    :
+    <li  class= "page-item">
+    <button class="page-link" href="#" onClick={this.previousItems}>Previous</button>
+    </li>
+    }
+ <li class={this.state.currentPage === 1 ?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(1)}>1</button>
+    </li>
+    <li class={this.state.currentPage ===  2?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(2)}>2</button>
+    </li>
+    <li class={this.state.currentPage === 3 ?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(3)}>3</button>
+    </li>
 
+    {this.state.currentPage === this.state.totalPages ?
+    <li  class="page-item disabled">
+    <button class="page-link"  onClick={this.nextItems}>Next</button>
+    </li>
+    :
+    <li  class= "page-item">
+    <button class="page-link" onClick={this.nextItems}>Next</button>
+    </li>
+    }
+  </ul>
+                </div>
             </div>
         )
     }

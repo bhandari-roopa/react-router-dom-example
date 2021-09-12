@@ -25,17 +25,6 @@ export default class Posts extends React.Component {
             console.log(err)
         })
     }
-    loadItems = () => {
-        console.log(this.state.initial)
-        const value = this.state.initial + 10
-        const newArray = [...this.state.data];
-        const first = newArray.splice(value, 10);
-        console.log(first)
-        this.setState({
-            first: first,
-            initial: value
-        })
-    }
 
     previousItems = () => {
         console.log(this.state.initial)
@@ -64,7 +53,23 @@ export default class Posts extends React.Component {
             currentPage: pageNumber,
         })
     }
-
+    loadItems = (index) => {
+        const newArray = [...this.state.data];
+        const value = index *10 - 10;
+        console.log(value)
+        const array = newArray.splice(value, 10);
+       
+         this.setState({
+            currentPage: index,
+             initial: value,
+             first: array
+        }) 
+    //   1->0
+    //   2->10
+    //   3->20
+    //   i->i*10 -10  
+        
+    }
 
     render() {
         return (
@@ -91,13 +96,38 @@ export default class Posts extends React.Component {
                         }
                     </tbody>
                 </table>
+{/* Pagination */}
+                <div>
+ <ul class="pagination justify-content-end">
+{this.state.currentPage === 1 ?
+    <li  class="page-item disabled">
+    <button class="page-link" href="#" onClick={this.previousItems}>Previous</button>
+    </li>
+    :
+    <li  class= "page-item">
+    <button class="page-link" href="#" onClick={this.previousItems}>Previous</button>
+    </li>
+    }
+    <li class={this.state.currentPage === 1 ?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(1)}>1</button>
+    </li>
+    <li class={this.state.currentPage ===  2?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(2)}>2</button>
+    </li>
+    <li class={this.state.currentPage === 3 ?"page-item active": "page-item"}>
+    <button class="page-link" onClick={()=>this.loadItems(3)}>3</button>
+    </li>
 
-                <div class="row justify-content-center">
-                    <div class="col-3 text-center">
-                        <button className="btn btn-primary" style={{ marginRight : "10px"}} disabled={this.state.currentPage === 1 ? true : false} onClick={this.previousItems}>Previous</button>
-                        <button className="btn btn-primary" disabled={this.state.currentPage === this.state.totalPages ? true : false} onClick={this.nextItems}>Next</button>
-                        
-                    </div>
+    {this.state.currentPage === this.state.totalPages ?
+    <li  class="page-item disabled">
+    <button class="page-link"  onClick={this.nextItems}>Next</button>
+    </li>
+    :
+    <li  class= "page-item">
+    <button class="page-link" onClick={this.nextItems}>Next</button>
+    </li>
+    }
+  </ul>
                 </div>
 
             </div>
