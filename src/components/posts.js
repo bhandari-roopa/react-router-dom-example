@@ -10,7 +10,10 @@ export default class Posts extends React.Component {
             first: [],
             initial: 0,
             currentPage: 1,
-            totalPages: 0
+            totalPages: 0,
+            showPageStart:0,
+            showPageEnd:3,
+            showPages:3,
         }
     }
     componentDidMount() {
@@ -26,7 +29,23 @@ export default class Posts extends React.Component {
         })
     }
 
+    incrementPage=()=>{
+        this.setState({
+            showPageStart : this.state.showPageStart + this.state.showPages,
+            showPageEnd : this.state.showPageEnd + this.state.showPages,
+        })
+    }
+    decrementPage=()=>{
+        this.setState({
+            showPageStart : this.state.showPageStart - this.state.showPages,
+            showPageEnd : this.state.showPageEnd - this.state.showPages,
+        })
+    }
     previousItems = () => {
+        if((this.state.currentPage -1)%this.state.showPages === 0 ){
+            this.setState({showPageEnd: this.state.showPageEnd - this.state.showPages});
+            this.setState({showPageStart: this.state.showPageStart - this.state.showPages});
+        }
         console.log(this.state.initial)
         const value = this.state.initial - 10
         const pageNumber = this.state.currentPage - 1
@@ -37,10 +56,15 @@ export default class Posts extends React.Component {
             first: first,
             initial: value,
             currentPage: pageNumber,
+
         })
     }
 
     nextItems = () => {
+        if((this.state.currentPage +1) > this.state.showPageEnd ){
+            this.setState({showPageEnd: this.state.showPageEnd + this.state.showPages});
+            this.setState({showPageStart: this.state.showPageStart + this.state.showPages});
+        }
         console.log(this.state.initial)
         const value = this.state.initial + 10
         const pageNumber = this.state.currentPage + 1
@@ -72,6 +96,14 @@ export default class Posts extends React.Component {
     }
 
     render() {
+
+        console.log("start",this.state.showPageStart);
+        console.log("end",this.state.showPageEnd);
+
+        const pageNumbers = [];
+        for (let i = 1; i <= this.state.totalPages; i++) {
+          pageNumbers.push(i);
+        }
         return (
             <div className="container">
                 <h4>Posts</h4>
@@ -108,15 +140,37 @@ export default class Posts extends React.Component {
     <button class="page-link" href="#" onClick={this.previousItems}>Previous</button>
     </li>
     }
-    <li class={this.state.currentPage === 1 ?"page-item active": "page-item"}>
-    <button class="page-link" onClick={()=>this.loadItems(1)}>1</button>
-    </li>
-    <li class={this.state.currentPage ===  2?"page-item active": "page-item"}>
-    <button class="page-link" onClick={()=>this.loadItems(2)}>2</button>
-    </li>
-    <li class={this.state.currentPage === 3 ?"page-item active": "page-item"}>
-    <button class="page-link" onClick={()=>this.loadItems(3)}>3</button>
-    </li>
+    {this.state.showPageStart === 0 ?
+        <li  class="page-item disabled">
+        <button class="page-link" href="#" onClick={this.decrementPage}>..</button>
+        </li>:
+        <li  class= "page-item">
+        <button class="page-link" href="#" onClick={this.decrementPage}>..</button>
+        </li>
+    }
+
+
+{this.state.totalPages > 0 ?
+ pageNumbers.map((page)=>(
+    page === 0 && this.state.currentPage === 1?
+     <li class={this.state.currentPage === page ?"page-item active": "page-item"}>
+     <button class="page-link" onClick={()=>this.loadItems(page)}>{page}</button>
+     </li>:
+   page < this.state.showPageEnd + 1 && page > this.state.showPageStart  ?
+   <li class={this.state.currentPage === page ?"page-item active": "page-item"}>
+   <button class="page-link" onClick={()=>this.loadItems(page)}>{page}</button>
+   </li>:""
+
+)) :""}
+
+        {pageNumbers.length < this.state.showPageEnd ?
+        <li  class="page-item disabled">
+        <button class="page-link" href="#" onClick={this.incrementPage}>..</button>
+        </li>:
+        <li  class= "page-item">
+        <button class="page-link" href="#" onClick={this.incrementPage}>..</button>
+        </li>
+      }
 
     {this.state.currentPage === this.state.totalPages ?
     <li  class="page-item disabled">
@@ -129,7 +183,6 @@ export default class Posts extends React.Component {
     }
   </ul>
                 </div>
-
             </div>
         )
     }
